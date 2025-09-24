@@ -181,19 +181,21 @@ export default function ProductEditModal({ product, isOpen, onClose, onSave }: P
   return (
     <div className="fixed inset-0 z-50">
       <div className="fixed inset-0 bg-black bg-opacity-50" onClick={onClose} />
-      <div className="fixed inset-0 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-strong w-full max-w-md max-h-[90vh] overflow-y-auto">
-          <div className="p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-primary">
-                {product ? 'Редактировать товар' : 'Добавить товар'}
-              </h2>
-              <button onClick={onClose} className="p-2 hover:bg-neutral-100 rounded-xl transition-colors">
-                <XMarkIcon className="h-6 w-6 text-neutral-600" />
-              </button>
-            </div>
+      <div className="fixed inset-0 p-0 xs:flex xs:items-center xs:justify-center xs:p-4">
+        <div className="bg-white w-full h-full max-w-full max-h-full rounded-none flex flex-col xs:rounded-2xl xs:max-w-md xs:max-h-[90vh] xs:h-auto xs:flex xs:flex-col xs:overflow-hidden xs:shadow-strong">
+          {/* Фиксированный хедер */}
+          <div className="flex items-center justify-between p-6 border-b border-neutral-200 flex-shrink-0">
+            <h2 className="text-2xl font-bold text-primary">
+              {product ? 'Редактировать товар' : 'Добавить товар'}
+            </h2>
+            <button onClick={onClose} className="p-2 hover:bg-neutral-100 rounded-xl transition-colors">
+              <XMarkIcon className="h-6 w-6 text-neutral-600" />
+            </button>
+          </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Скроллируемое содержимое */}
+          <div className="flex-1 overflow-y-auto p-6">
+            <form id="product-form" onSubmit={handleSubmit} className="space-y-4">
               {/* Название */}
               <div>
                 <label className="block text-sm font-semibold text-primary mb-2">Название товара *</label>
@@ -360,16 +362,19 @@ export default function ProductEditModal({ product, isOpen, onClose, onSave }: P
                 </label>
               </div>
 
-              {/* Кнопки */}
-              <div className="flex gap-3 pt-4">
-                <button type="submit" className="flex-1 btn-primary py-2 text-sm font-semibold">
-                  {product ? 'Сохранить изменения' : 'Добавить товар'}
-                </button>
-                <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-semibold text-neutral-600 hover:text-neutral-800 hover:bg-neutral-100 rounded-xl transition-colors">
-                  Отмена
-                </button>
-              </div>
             </form>
+          </div>
+
+          {/* Фиксированный футер */}
+          <div className="p-6 border-t border-neutral-200 flex-shrink-0">
+            <div className="flex gap-3">
+              <button type="submit" form="product-form" className="flex-1 btn-primary py-2 text-sm font-semibold">
+                {product ? 'Сохранить изменения' : 'Добавить товар'}
+              </button>
+              <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-semibold text-neutral-600 hover:text-neutral-800 hover:bg-neutral-100 rounded-xl transition-colors">
+                Отмена
+              </button>
+            </div>
           </div>
         </div>
       </div>
