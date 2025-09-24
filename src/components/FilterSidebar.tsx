@@ -47,7 +47,7 @@ export default function FilterSidebar({
       </div>
 
       <div>
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4">
           <h4 className="font-semibold text-lg text-primary">Категории</h4>
           {selectedCategories.length > 0 && (
             <button

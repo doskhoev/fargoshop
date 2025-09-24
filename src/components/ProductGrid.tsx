@@ -1,6 +1,7 @@
 'use client'
 
-import { mockProducts } from '@/data/mockProducts'
+import { Product } from '@/types'
+import { useProductStore } from '@/store/productStore'
 import ProductCard from './ProductCard'
 import ProductCardList from './ProductCardList'
 
@@ -9,11 +10,15 @@ interface ProductGridProps {
   selectedCategories?: string[]
   isListView?: boolean
   onCategoryClick?: (category: string) => void
+  onEditProduct?: (product: Product) => void
+  onDeleteProduct?: (productId: string, productName: string) => void
 }
 
-export default function ProductGrid({ searchQuery = '', selectedCategories = [], isListView = false, onCategoryClick }: ProductGridProps) {
+export default function ProductGrid({ searchQuery = '', selectedCategories = [], isListView = false, onCategoryClick, onEditProduct, onDeleteProduct }: ProductGridProps) {
+  const { products } = useProductStore()
+  
   // Фильтрация товаров по поисковому запросу и категориям
-  const filteredProducts = mockProducts.filter(product => {
+  const filteredProducts = products.filter(product => {
     // Фильтр по поисковому запросу
     const matchesSearch = !searchQuery.trim() || (
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -58,6 +63,8 @@ export default function ProductGrid({ searchQuery = '', selectedCategories = [],
             product={product} 
             onCategoryClick={onCategoryClick}
             selectedCategories={selectedCategories}
+            onEditProduct={onEditProduct}
+            onDeleteProduct={onDeleteProduct}
           />
         ))}
       </div>
@@ -65,13 +72,15 @@ export default function ProductGrid({ searchQuery = '', selectedCategories = [],
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
       {filteredProducts.map((product) => (
         <ProductCard 
           key={product.id} 
           product={product} 
           onCategoryClick={onCategoryClick}
           selectedCategories={selectedCategories}
+          onEditProduct={onEditProduct}
+          onDeleteProduct={onDeleteProduct}
         />
       ))}
     </div>

@@ -1,18 +1,28 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { Product } from '@/types'
 import { useCartStore } from '@/store/cartStore'
-import { PlusIcon, MinusIcon, ShoppingCartIcon } from '@heroicons/react/24/outline'
+import { useAuthStore } from '@/store/authStore'
+import { PlusIcon, MinusIcon, ShoppingCartIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline'
 
 interface ProductCardListProps {
   product: Product
   onCategoryClick?: (category: string) => void
   selectedCategories?: string[]
+  onEditProduct?: (product: Product) => void
+  onDeleteProduct?: (productId: string, productName: string) => void
 }
 
-export default function ProductCardList({ product, onCategoryClick, selectedCategories = [] }: ProductCardListProps) {
+export default function ProductCardList({ product, onCategoryClick, selectedCategories = [], onEditProduct, onDeleteProduct }: ProductCardListProps) {
   const { addItem, removeItem, updateQuantity, getItemQuantity } = useCartStore()
+  const { isAdmin } = useAuthStore()
+  const [isMounted, setIsMounted] = useState(false)
   const quantity = getItemQuantity(product.id)
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   const handleAdd = () => {
     addItem(product)
@@ -26,8 +36,36 @@ export default function ProductCardList({ product, onCategoryClick, selectedCate
     }
   }
 
+  const handleEdit = () => {
+    onEditProduct?.(product)
+  }
+
+  const handleDelete = () => {
+    onDeleteProduct?.(product.id, product.name)
+  }
+
   return (
-    <div className="card-hover p-3 xs:p-4 group">
+    <div className="card-hover p-3 xs:p-4 group relative">
+      {/* Админ-кнопки */}
+      {isMounted && isAdmin() && (
+        <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+          <button
+            onClick={handleEdit}
+            className="p-1.5 bg-white/90 hover:bg-white text-primary-600 hover:text-primary-700 rounded-lg shadow-soft transition-colors"
+            title="Редактировать товар"
+          >
+            <PencilIcon className="h-4 w-4" />
+          </button>
+          <button
+            onClick={handleDelete}
+            className="p-1.5 bg-white/90 hover:bg-white text-red-600 hover:text-red-700 rounded-lg shadow-soft transition-colors"
+            title="Удалить товар"
+          >
+            <TrashIcon className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+      
       <div className="flex gap-3 xs:gap-4">
         {/* Изображение - в 2 раза меньше */}
         <div className="w-16 h-16 xs:w-20 xs:h-20 bg-gradient-to-br from-neutral-100 to-neutral-200 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
@@ -141,6 +179,7 @@ export default function ProductCardList({ product, onCategoryClick, selectedCate
           </div>
         </div>
       </div>
+
     </div>
   )
 }

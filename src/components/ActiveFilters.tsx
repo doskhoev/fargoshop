@@ -18,7 +18,7 @@ export default function ActiveFilters({
     }
 
     return (
-        <div className="bg-white rounded-2xl p-6 shadow-soft border border-neutral-200 mb-8">
+        <div className="bg-white rounded-2xl p-6 shadow-soft border border-neutral-200 mb-4">
 
 
             <div className="flex gap-3 justify-between items-start">

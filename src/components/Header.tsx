@@ -1,9 +1,12 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useCartStore } from '@/store/cartStore'
-import { ShoppingCartIcon, UserIcon } from '@heroicons/react/24/outline'
+import { useAuthStore } from '@/store/authStore'
+import { ShoppingCartIcon } from '@heroicons/react/24/outline'
 import SearchBar from './SearchBar'
+import UserMenu from './UserMenu'
 
 interface HeaderProps {
   onSearch?: (query: string) => void
@@ -11,6 +14,12 @@ interface HeaderProps {
 
 export default function Header({ onSearch }: HeaderProps) {
   const { items, total } = useCartStore()
+  const { isAdmin } = useAuthStore()
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   return (
     <header className="bg-white shadow-soft border-b border-neutral-200 sm:sticky sm:top-0 z-50">
@@ -25,23 +34,28 @@ export default function Header({ onSearch }: HeaderProps) {
             {onSearch && <SearchBar onSearch={onSearch} />}
           </div>
           
-          <nav className="hidden md:flex space-x-4 lg:space-x-8 flex-shrink-0">
-            <Link href="/" className="text-sm lg:text-base text-neutral-700 hover:text-primary-500 font-medium transition-colors">
-              Главная
-            </Link>
-            <Link href="/products" className="text-sm lg:text-base text-neutral-700 hover:text-primary-500 font-medium transition-colors">
-              Каталог
-            </Link>
-            <Link href="/about" className="text-sm lg:text-base text-neutral-700 hover:text-primary-500 font-medium transition-colors">
-              О нас
-            </Link>
-          </nav>
+           <nav className="hidden md:flex space-x-4 lg:space-x-8 flex-shrink-0">
+             <Link href="/" className="text-sm lg:text-base text-neutral-700 hover:text-primary-500 font-medium transition-colors">
+               Главная
+             </Link>
+             <Link href="/products" className="text-sm lg:text-base text-neutral-700 hover:text-primary-500 font-medium transition-colors">
+               Каталог
+             </Link>
+             <Link href="/about" className="text-sm lg:text-base text-neutral-700 hover:text-primary-500 font-medium transition-colors">
+               О нас
+             </Link>
+             {isMounted && isAdmin() && (
+               <span className="text-sm lg:text-base text-primary-500 font-medium">
+                 Админ
+               </span>
+             )}
+           </nav>
           
           <div className="flex items-center space-x-1 xs:space-x-2 sm:space-x-3 flex-shrink-0">
-            <button className="p-2 xs:p-3 text-neutral-600 hover:text-primary-500 hover:bg-primary-50 rounded-xl transition-all duration-200">
-              <UserIcon className="h-5 w-5 xs:h-6 xs:w-6" />
-            </button>
+            {/* Пользователь */}
+            <UserMenu />
             
+            {/* Корзина */}
             <Link href="/cart" className="relative p-2 xs:p-3 text-neutral-600 hover:text-primary-500 hover:bg-primary-50 rounded-xl transition-all duration-200">
               <ShoppingCartIcon className="h-5 w-5 xs:h-6 xs:w-6" />
               {items.length > 0 && (

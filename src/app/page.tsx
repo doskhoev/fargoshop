@@ -8,7 +8,11 @@ import FilterSidebar from '@/components/FilterSidebar'
 import FilterButton from '@/components/FilterButton'
 import ActiveFilters from '@/components/ActiveFilters'
 import ViewToggle from '@/components/ViewToggle'
-import { mockProducts } from '@/data/mockProducts'
+import { useProductStore } from '@/store/productStore'
+import { useAuthStore } from '@/store/authStore'
+import { PlusIcon } from '@heroicons/react/24/outline'
+import ProductEditModal from '@/components/ProductEditModal'
+import { Product } from '@/types'
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -17,11 +21,17 @@ export default function Home() {
   const [isMobile, setIsMobile] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
   const [isListView, setIsListView] = useState(false)
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null)
 
   // Получаем уникальные категории из товаров
-  const categories = Array.from(new Set(mockProducts.map(product => product.category)))
+  const { products, fetchProducts } = useProductStore()
+  const { isAdmin, checkAuth } = useAuthStore()
+  const { deleteProduct } = useProductStore()
+  const categories = Array.from(new Set(products.map(product => product.category)))
 
-  // Определяем мобильное устройство
+  // Определяем мобильное устройство и загружаем продукты
   useEffect(() => {
     setIsMounted(true)
     const checkMobile = () => {
@@ -31,8 +41,12 @@ export default function Home() {
     checkMobile()
     window.addEventListener('resize', checkMobile)
     
+    // Проверяем аутентификацию и загружаем продукты из API
+    checkAuth()
+    fetchProducts()
+    
     return () => window.removeEventListener('resize', checkMobile)
-  }, [])
+  }, [fetchProducts])
 
   const handleSearch = (query: string) => {
     setSearchQuery(query)
@@ -67,6 +81,26 @@ export default function Home() {
 
   const getFilterCount = () => {
     return selectedCategories.length
+  }
+
+  const handleEditProduct = (product: Product) => {
+    setEditingProduct(product)
+    setIsEditModalOpen(true)
+  }
+
+  const handleDeleteProduct = async (productId: string, productName: string) => {
+    if (confirm(`Вы уверены, что хотите удалить товар "${productName}"?`)) {
+      const success = await deleteProduct(productId)
+      if (success) {
+        // Продукт успешно удален, обновляем список
+        fetchProducts()
+      }
+    }
+  }
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false)
+    setEditingProduct(null)
   }
 
   const getPageTitle = () => {
@@ -129,19 +163,32 @@ export default function Home() {
             {getPageTitle()}
           </h2>
           
-          {/* Кнопки для мобильных */}
-          {isMobile && (
-            <div className="flex items-center gap-2 xs:gap-3">
-              <ViewToggle 
-                isListView={isListView}
-                onToggle={handleViewToggle}
-              />
-              <FilterButton 
-                onClick={handleFilterToggle}
-                filterCount={getFilterCount()}
-              />
-            </div>
-          )}
+          <div className="flex items-center gap-2 xs:gap-3">
+            {/* Кнопка добавления товара для админов */}
+            {isMounted && isAdmin() && (
+              <button
+                onClick={() => setIsAddModalOpen(true)}
+                className="btn-primary px-3 xs:px-4 py-2 xs:py-3 text-sm xs:text-base font-semibold flex items-center gap-1 xs:gap-2"
+              >
+                <PlusIcon className="h-4 w-4 xs:h-5 xs:w-5" />
+                <span className="hidden sm:inline">Добавить товар</span>
+              </button>
+            )}
+            
+            {/* Кнопки для мобильных */}
+            {isMobile && (
+              <>
+                <ViewToggle 
+                  isListView={isListView}
+                  onToggle={handleViewToggle}
+                />
+                <FilterButton 
+                  onClick={handleFilterToggle}
+                  filterCount={getFilterCount()}
+                />
+              </>
+            )}
+          </div>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-4">
@@ -168,6 +215,8 @@ export default function Home() {
               selectedCategories={selectedCategories}
               isListView={isMobile ? isListView : false}
               onCategoryClick={handleCategoryClick}
+              onEditProduct={handleEditProduct}
+              onDeleteProduct={handleDeleteProduct}
             />
           </div>
         </div>
@@ -184,6 +233,22 @@ export default function Home() {
           isMobile={true}
         />
       )}
+
+      {/* Модалка добавления товара */}
+      <ProductEditModal
+        product={null}
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSave={() => setIsAddModalOpen(false)}
+      />
+
+      {/* Модалка редактирования товара */}
+      <ProductEditModal
+        product={editingProduct}
+        isOpen={isEditModalOpen}
+        onClose={handleCloseEditModal}
+        onSave={handleCloseEditModal}
+      />
     </div>
   )
 }
