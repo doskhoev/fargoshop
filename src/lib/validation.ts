@@ -18,7 +18,8 @@ export const productSchema = z.object({
   category: z.string().min(1, 'Категория обязательна'),
   weight: z.string().optional(),
   expirationDate: z.string().optional(),
-  inStock: z.boolean().default(true)
+  inStock: z.boolean().default(true),
+  image: z.string().optional()
 })
 
 export const cartItemSchema = z.object({

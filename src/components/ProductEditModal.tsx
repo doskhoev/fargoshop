@@ -22,18 +22,92 @@ export default function ProductEditModal({ product, isOpen, onClose, onSave }: P
     category: '',
     weight: '',
     expirationDate: '',
-    inStock: true
+    inStock: true,
+    image: ''
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [isUploading, setIsUploading] = useState(false)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
 
   const categories = [
     'Овощи', 'Фрукты', 'Молочка', 'Хлеб', 'Мясо', 
     'Рыба', 'Крупы', 'Напитки', 'Сладости', 'Заморозка'
   ]
 
+  const handleImageUpload = async (file: File) => {
+    setIsUploading(true)
+    setErrors(prev => ({ ...prev, image: '' }))
+
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const token = localStorage.getItem('auth-storage')
+      const authData = token ? JSON.parse(token) : null
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${authData?.state?.token}`
+        },
+        body: formData
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setFormData(prev => ({ ...prev, image: data.imageUrl }))
+        setImagePreview(data.imageUrl)
+      } else {
+        setErrors(prev => ({ ...prev, image: data.error }))
+      }
+    } catch (error) {
+      setErrors(prev => ({ ...prev, image: 'Ошибка загрузки изображения' }))
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // Валидация на клиенте
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+      if (!allowedTypes.includes(file.type)) {
+        setErrors(prev => ({ ...prev, image: 'Неподдерживаемый формат файла' }))
+        return
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        setErrors(prev => ({ ...prev, image: 'Файл слишком большой (максимум 5MB)' }))
+        return
+      }
+
+      handleImageUpload(file)
+    }
+  }
+
+  const handleRemoveImage = () => {
+    if (confirm('Вы уверены, что хотите удалить изображение?')) {
+      // Очищаем поле изображения
+      setFormData(prev => ({ ...prev, image: '' }))
+      setImagePreview(null)
+      setErrors(prev => ({ ...prev, image: '' }))
+      
+      // Очищаем input файла
+      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
+      if (fileInput) {
+        fileInput.value = ''
+      }
+    }
+  }
+
   useEffect(() => {
     if (product) {
+      // Проверяем, что изображение не является placeholder
+      const hasRealImage = product.image && !product.image.includes('placeholder')
+      
       setFormData({
         name: product.name,
         price: product.price.toString(),
@@ -41,13 +115,16 @@ export default function ProductEditModal({ product, isOpen, onClose, onSave }: P
         category: product.category,
         weight: product.weight || '',
         expirationDate: product.expirationDate || '',
-        inStock: product.inStock
+        inStock: product.inStock,
+        image: hasRealImage ? product.image! : ''
       })
+      setImagePreview(hasRealImage ? product.image! : null)
     } else {
       setFormData({
         name: '', price: '', description: '', category: '',
-        weight: '', expirationDate: '', inStock: true
+        weight: '', expirationDate: '', inStock: true, image: ''
       })
+      setImagePreview(null)
     }
     setErrors({})
   }, [product])
@@ -77,7 +154,7 @@ export default function ProductEditModal({ product, isOpen, onClose, onSave }: P
       weight: formData.weight.trim() || undefined,
       expirationDate: formData.expirationDate || undefined,
       inStock: formData.inStock,
-      image: '/images/placeholder.jpg'
+      image: formData.image || undefined // Не передаем placeholder, пусть API сам решает
     }
 
     let success = false
@@ -163,6 +240,68 @@ export default function ProductEditModal({ product, isOpen, onClose, onSave }: P
                   placeholder="Описание товара"
                 />
                 {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
+              </div>
+
+              {/* Изображение */}
+              <div>
+                <label className="block text-sm font-semibold text-primary mb-2">
+                  Изображение товара
+                  {imagePreview && (
+                    <span className="ml-2 text-xs text-green-600 font-normal">✓ Загружено</span>
+                  )}
+                </label>
+                
+                {/* Предварительный просмотр */}
+                {imagePreview && (
+                  <div className="mb-3 relative inline-block">
+                    <img 
+                      src={imagePreview} 
+                      alt="Предварительный просмотр" 
+                      className="w-32 h-32 object-cover rounded-lg border border-neutral-300"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs font-bold transition-colors"
+                      title="Удалить изображение"
+                    >
+                      ×
+                    </button>
+                  </div>
+                )}
+                
+                {/* Загрузка файла */}
+                <div className="relative">
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png,image/webp"
+                    onChange={handleFileChange}
+                    disabled={isUploading}
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-xl text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 disabled:opacity-50"
+                  />
+                  {isUploading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 rounded-xl">
+                      <div className="text-sm text-primary-600">Загрузка...</div>
+                    </div>
+                  )}
+                </div>
+                
+                <p className="text-xs text-neutral-500 mt-1">
+                  Поддерживаемые форматы: JPEG, PNG, WebP. Максимальный размер: 5MB
+                </p>
+                
+                {/* Кнопка удаления изображения */}
+                {imagePreview && (
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    className="mt-2 px-3 py-1 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                  >
+                    Удалить изображение
+                  </button>
+                )}
+                
+                {errors.image && <p className="text-red-500 text-xs mt-1">{errors.image}</p>}
               </div>
 
               {/* Категория */}

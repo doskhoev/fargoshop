@@ -60,7 +60,11 @@ export async function PUT(
 
     const product = await prisma.product.update({
       where: { id: params.id },
-      data: productData
+      data: {
+        ...productData,
+        image: productData.image || null, // Не устанавливаем placeholder при обновлении
+        expirationDate: productData.expirationDate ? new Date(productData.expirationDate) : null
+      }
     })
 
     return NextResponse.json(product)

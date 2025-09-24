@@ -69,7 +69,21 @@ export default function ProductCardList({ product, onCategoryClick, selectedCate
       <div className="flex gap-3 xs:gap-4">
         {/* Изображение - в 2 раза меньше */}
         <div className="w-16 h-16 xs:w-20 xs:h-20 bg-gradient-to-br from-neutral-100 to-neutral-200 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
-          <span className="text-neutral-400 text-xs font-medium">Фото</span>
+          {product.image ? (
+            <img 
+              src={product.image} 
+              alt={product.name}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                // Если изображение не загрузилось, показываем заглушку
+                e.currentTarget.style.display = 'none'
+                e.currentTarget.nextElementSibling?.classList.remove('hidden')
+              }}
+            />
+          ) : null}
+          <span className={`text-neutral-400 text-xs font-medium ${product.image ? 'hidden' : ''}`}>
+            Фото
+          </span>
         </div>
 
         {/* Контент */}

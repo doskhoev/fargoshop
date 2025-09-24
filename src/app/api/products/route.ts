@@ -66,7 +66,8 @@ export async function POST(request: NextRequest) {
     const product = await prisma.product.create({
       data: {
         ...productData,
-        image: '/images/placeholder.jpg' // По умолчанию
+        image: productData.image || null, // Не устанавливаем placeholder, если изображение не передано
+        expirationDate: productData.expirationDate ? new Date(productData.expirationDate) : null
       }
     })
 

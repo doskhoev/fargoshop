@@ -68,7 +68,21 @@ export default function ProductCard({ product, onCategoryClick, selectedCategori
       )}
       
       <div className="aspect-square bg-gradient-to-br from-neutral-100 to-neutral-200 rounded-2xl mb-4 xs:mb-6 flex items-center justify-center overflow-hidden">
-        <span className="text-neutral-400 text-xs xs:text-sm font-medium">Изображение</span>
+        {product.image ? (
+          <img 
+            src={product.image} 
+            alt={product.name}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              // Если изображение не загрузилось, показываем заглушку
+              e.currentTarget.style.display = 'none'
+              e.currentTarget.nextElementSibling?.classList.remove('hidden')
+            }}
+          />
+        ) : null}
+        <span className={`text-neutral-400 text-xs xs:text-sm font-medium ${product.image ? 'hidden' : ''}`}>
+          Изображение
+        </span>
       </div>
       
       <div className="space-y-3 xs:space-y-4">

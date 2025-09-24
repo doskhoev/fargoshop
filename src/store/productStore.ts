@@ -38,11 +38,18 @@ export const useProductStore = create<ProductStore>()(
       },
       
       addProduct: async (productData: Omit<Product, 'id'>) => {
-        const { token } = useAuthStore.getState()
-        if (!token) return false
-
         set({ isLoading: true, error: null })
         try {
+          // Получаем токен из localStorage напрямую
+          const authStorage = localStorage.getItem('auth-storage')
+          const authData = authStorage ? JSON.parse(authStorage) : null
+          const token = authData?.state?.token
+          
+          if (!token) {
+            set({ error: 'Требуется авторизация', isLoading: false })
+            return false
+          }
+
           const response = await fetch('/api/products', {
             method: 'POST',
             headers: {
@@ -70,11 +77,18 @@ export const useProductStore = create<ProductStore>()(
       },
       
       updateProduct: async (id: string, productData: Omit<Product, 'id'>) => {
-        const { token } = useAuthStore.getState()
-        if (!token) return false
-
         set({ isLoading: true, error: null })
         try {
+          // Получаем токен из localStorage напрямую
+          const authStorage = localStorage.getItem('auth-storage')
+          const authData = authStorage ? JSON.parse(authStorage) : null
+          const token = authData?.state?.token
+          
+          if (!token) {
+            set({ error: 'Требуется авторизация', isLoading: false })
+            return false
+          }
+
           const response = await fetch(`/api/products/${id}`, {
             method: 'PUT',
             headers: {
@@ -104,11 +118,18 @@ export const useProductStore = create<ProductStore>()(
       },
       
       deleteProduct: async (id: string) => {
-        const { token } = useAuthStore.getState()
-        if (!token) return false
-
         set({ isLoading: true, error: null })
         try {
+          // Получаем токен из localStorage напрямую
+          const authStorage = localStorage.getItem('auth-storage')
+          const authData = authStorage ? JSON.parse(authStorage) : null
+          const token = authData?.state?.token
+          
+          if (!token) {
+            set({ error: 'Требуется авторизация', isLoading: false })
+            return false
+          }
+
           const response = await fetch(`/api/products/${id}`, {
             method: 'DELETE',
             headers: {
