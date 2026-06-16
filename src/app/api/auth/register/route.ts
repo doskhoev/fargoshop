@@ -6,7 +6,7 @@ import { registerSchema } from '@/lib/validation'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { email, password, name } = registerSchema.parse(body)
+    const { email, password, name, phone, address } = registerSchema.parse(body)
 
     // Проверить, существует ли пользователь
     const existingUser = await prisma.user.findUnique({
@@ -27,6 +27,8 @@ export async function POST(request: NextRequest) {
         email,
         password: hashedPassword,
         name,
+        phone,
+        address: address || null,
         role: 'USER'
       }
     })

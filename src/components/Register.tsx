@@ -15,7 +15,9 @@ export default function Register({ isOpen, onClose, onSwitchToLogin }: RegisterP
   const [credentials, setCredentials] = useState({
     email: '',
     password: '',
-    name: ''
+    name: '',
+    phone: '',
+    address: ''
   })
   const [error, setError] = useState('')
 
@@ -27,11 +29,16 @@ export default function Register({ isOpen, onClose, onSwitchToLogin }: RegisterP
       setError('Пароль должен содержать минимум 6 символов')
       return
     }
+
+    if (credentials.phone.length < 10) {
+      setError('Введите корректный номер телефона')
+      return
+    }
     
     const success = await register(credentials)
     if (success) {
       onClose()
-      setCredentials({ email: '', password: '', name: '' })
+      setCredentials({ email: '', password: '', name: '', phone: '', address: '' })
     } else {
       setError('Ошибка регистрации')
     }
@@ -86,6 +93,33 @@ export default function Register({ isOpen, onClose, onSwitchToLogin }: RegisterP
                   className="w-full px-4 py-3 border border-neutral-300 bg-white rounded-xl text-base focus:border-primary-500 focus:ring-primary-200 transition-colors"
                   placeholder="Введите email"
                   required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-primary mb-2">
+                  Телефон
+                </label>
+                <input
+                  type="tel"
+                  value={credentials.phone}
+                  onChange={(e) => handleInputChange('phone', e.target.value)}
+                  className="w-full px-4 py-3 border border-neutral-300 bg-white rounded-xl text-base focus:border-primary-500 focus:ring-primary-200 transition-colors"
+                  placeholder="+7 (999) 123-45-67"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-primary mb-2">
+                  Адрес доставки <span className="text-secondary font-normal">(необязательно)</span>
+                </label>
+                <textarea
+                  value={credentials.address}
+                  onChange={(e) => handleInputChange('address', e.target.value)}
+                  className="w-full px-4 py-3 border border-neutral-300 bg-white rounded-xl text-base focus:border-primary-500 focus:ring-primary-200 transition-colors resize-none"
+                  placeholder="Город, улица, дом, квартира"
+                  rows={2}
                 />
               </div>
 

@@ -14,7 +14,6 @@ interface HeaderProps {
 
 export default function Header({ onSearch }: HeaderProps) {
   const { items, total } = useCartStore()
-  const { isAdmin } = useAuthStore()
   const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
@@ -44,11 +43,6 @@ export default function Header({ onSearch }: HeaderProps) {
              <Link href="/about" className="text-sm lg:text-base text-neutral-700 hover:text-primary-500 font-medium transition-colors">
                О нас
              </Link>
-             {isMounted && isAdmin() && (
-               <span className="text-sm lg:text-base text-primary-500 font-medium">
-                 Админ
-               </span>
-             )}
            </nav>
           
           <div className="flex items-center space-x-1 xs:space-x-2 sm:space-x-3 flex-shrink-0">

@@ -12,32 +12,34 @@ model User {
   email     String   @unique
   password  String
   name      String
+  phone     String?
+  address   String?
   role      Role     @default(USER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   orders    Order[]
   cartItems CartItem[]
-  
+
   @@map("users")
 }
 
 model Product {
-  id            String   @id @default(cuid())
-  name          String
-  price         Decimal  @db.Decimal(10, 2)
-  description   String
-  category      String
-  inStock       Boolean  @default(true)
-  weight        String?
+  id             String    @id @default(cuid())
+  name           String
+  price          Decimal   @db.Decimal(10, 2)
+  description    String
+  category       String
+  inStock        Boolean   @default(true)
+  weight         String?
   expirationDate DateTime?
-  image         String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
-  cartItems     CartItem[]
-  orderItems    OrderItem[]
-  
+  image          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
   @@map("products")
 }
 
@@ -47,50 +49,72 @@ model CartItem {
   productId String
   quantity  Int      @default(1)
   createdAt DateTime @default(now())
-  
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
   @@unique([userId, productId])
   @@map("cart_items")
 }
 
 model Order {
-  id        String      @id @default(cuid())
-  userId    String
-  status    OrderStatus @default(PENDING)
-  total     Decimal     @db.Decimal(10, 2)
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-  
-  user      User        @relation(fields: [userId], references: [id])
-  items     OrderItem[]
-  
+  id            String        @id @default(cuid())
+  orderNumber   String        @unique
+  userId        String?
+  phone         String
+  address       String
+  guestName     String?
+  status        OrderStatus   @default(PENDING)
+  paymentMethod PaymentMethod @default(CASH_ON_DELIVERY)
+  paymentStatus PaymentStatus @default(NOT_REQUIRED)
+  total         Decimal       @db.Decimal(10, 2)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  user  User?       @relation(fields: [userId], references: [id])
+  items OrderItem[]
+
   @@map("orders")
 }
 
 model OrderItem {
-  id        String   @id @default(cuid())
+  id        String  @id @default(cuid())
   orderId   String
   productId String
   quantity  Int
-  price     Decimal  @db.Decimal(10, 2)
-  
-  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product   Product  @relation(fields: [productId], references: [id])
-  
+  price     Decimal @db.Decimal(10, 2)
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
   @@map("order_items")
 }
 
 enum Role {
   USER
   ADMIN
+  PICKER
+  COURIER
 }
 
 enum OrderStatus {
   PENDING
   CONFIRMED
-  SHIPPED
+  ASSEMBLING
+  READY_FOR_DELIVERY
+  IN_DELIVERY
   DELIVERED
   CANCELLED
+}
+
+enum PaymentMethod {
+  CASH_ON_DELIVERY
+  YUKASSA
+}
+
+enum PaymentStatus {
+  NOT_REQUIRED
+  PENDING
+  PAID
+  FAILED
 }

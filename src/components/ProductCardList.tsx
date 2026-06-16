@@ -25,14 +25,14 @@ export default function ProductCardList({ product, onCategoryClick, selectedCate
   }, [])
 
   const handleAdd = () => {
-    addItem(product)
+    void addItem(product)
   }
 
   const handleRemove = () => {
     if (quantity === 1) {
-      removeItem(product.id)
+      void removeItem(product.id)
     } else {
-      updateQuantity(product.id, quantity - 1)
+      void updateQuantity(product.id, quantity - 1)
     }
   }
 

@@ -112,9 +112,23 @@ export default function Login({ isOpen, onClose, onSwitchToRegister }: LoginProp
 
             <div className="mt-4 p-3 bg-neutral-50 rounded-xl">
               <p className="text-xs text-neutral-600 mb-2">Тестовые аккаунты:</p>
-              <div className="text-xs space-y-1">
-                <div><strong>Админ:</strong> admin@fargoshop.ru / admin123</div>
-                <div><strong>Пользователь:</strong> user@fargoshop.ru / user123</div>
+              <div className="text-xs space-y-1.5 text-neutral-700">
+                <div>
+                  <strong>Админ:</strong> admin@fargoshop.ru / admin123
+                  <span className="text-neutral-500"> — товары, заказы, пользователи</span>
+                </div>
+                <div>
+                  <strong>Пользователь:</strong> user@fargoshop.ru / user123
+                  <span className="text-neutral-500"> — покупки, мои заказы</span>
+                </div>
+                <div>
+                  <strong>Сборщик:</strong> picker@fargoshop.ru / picker123
+                  <span className="text-neutral-500"> — панель сборки</span>
+                </div>
+                <div>
+                  <strong>Курьер:</strong> courier@fargoshop.ru / courier123
+                  <span className="text-neutral-500"> — панель доставки</span>
+                </div>
               </div>
             </div>
           </div>

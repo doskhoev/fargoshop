@@ -29,6 +29,8 @@ export async function GET(request: NextRequest) {
         id: true,
         email: true,
         name: true,
+        phone: true,
+        address: true,
         role: true,
         createdAt: true,
         updatedAt: true

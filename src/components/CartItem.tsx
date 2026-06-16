@@ -27,7 +27,7 @@ export default function CartItem({ item }: CartItemProps) {
         
         <div className="flex items-center space-x-2">
           <button
-            onClick={() => updateQuantity(product.id, quantity - 1)}
+            onClick={() => void updateQuantity(product.id, quantity - 1)}
             className="p-1 rounded-full hover:bg-gray-100"
           >
             <MinusIcon className="h-4 w-4" />
@@ -36,14 +36,14 @@ export default function CartItem({ item }: CartItemProps) {
           <span className="w-8 text-center font-semibold">{quantity}</span>
           
           <button
-            onClick={() => updateQuantity(product.id, quantity + 1)}
+            onClick={() => void updateQuantity(product.id, quantity + 1)}
             className="p-1 rounded-full hover:bg-gray-100"
           >
             <PlusIcon className="h-4 w-4" />
           </button>
           
           <button
-            onClick={() => removeItem(product.id)}
+            onClick={() => void removeItem(product.id)}
             className="p-1 text-red-600 hover:bg-red-50 rounded-full ml-2"
           >
             <TrashIcon className="h-4 w-4" />
